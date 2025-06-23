@@ -1,14 +1,38 @@
+![LangChain Academy](https://cdn.prod.website-files.com/65b8cd72835ceeacd4449a53/66e9eba1020525eea7873f96_LCA-big-green%20(2).svg)
+
+## Introduction
+
+Welcome to LangChain Academy! 
+This is a growing set of modules focused on foundational concepts within the LangChain ecosystem. 
+Module 0 is basic setup and Modules 1 - 4 focus on LangGraph, progressively adding more advanced themes. 
+In each module folder, you'll see a set of notebooks. A LangChain Academy accompanies each notebook 
+to guide you through the topic. Each module also has a `studio` subdirectory, with a set of relevant 
+graphs that we will explore using the LangGraph API and Studio.
+
+## Setup
+
+### Python version
+
+To get the most out of this course, please ensure you're using Python 3.11 or later. 
+This version is required for optimal compatibility with LangGraph. If you're on an older version, 
+upgrading will ensure everything runs smoothly.
 ```
-python -m venv lc-academy-env
-lc-academy-env/scripts/activate
-pip install -r requirements.txt
-
-
+python3 --version
 ```
 
+### Clone repo
+```
+git clone https://github.com/langchain-ai/langchain-academy.git
+$ cd langchain-academy
+```
 
-
-
+### Create an environment and install dependencies
+#### Mac/Linux/WSL
+```
+$ python3 -m venv lc-academy-env
+$ source lc-academy-env/bin/activate
+$ pip install -r requirements.txt
+```
 #### Windows Powershell
 ```
 PS> python3 -m venv lc-academy-env

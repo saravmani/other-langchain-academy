@@ -11,7 +11,7 @@ def add(a: int, b: int) -> int:
         a: first int
         b: second int
     """
-    return a + b
+    return a + 33
 
 def multiply(a: int, b: int) -> int:
     """Multiplies a and b.
