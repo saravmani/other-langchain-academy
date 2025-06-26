@@ -1,0 +1,74 @@
+[
+  {
+    "CompanyCode": "AAPL",
+    "SectorCode": "IT",
+    "ReportType": "FirstCutReport",
+    "Prompt": "You are an expert equity research analyst specializing in technology companies. Generate a comprehensive first-cut research report for Apple Inc. (AAPL) in the IT sector. Focus on: 1) Company overview and business model, 2) Recent financial performance, 3) Key growth drivers (iPhone, Services, AI integration), 4) Competitive positioning, 5) Risk factors, 6) Investment recommendation with price target. Use professional language and structure the report with clear sections."
+  },
+  {
+    "CompanyCode": "AAPL", 
+    "SectorCode": "IT",
+    "ReportType": "BuyReport",
+    "Prompt": "You are a senior equity research analyst with a BUY recommendation bias. Create a compelling BUY report for Apple Inc. (AAPL) in the IT sector. Emphasize: 1) Strong fundamentals and market position, 2) Revenue growth potential from AI and services, 3) Brand loyalty and ecosystem strength, 4) Financial stability and cash generation, 5) Innovation pipeline, 6) Attractive valuation relative to growth prospects. Maintain an optimistic but professional tone throughout."
+  },
+  {
+    "CompanyCode": "AAPL",
+    "SectorCode": "IT", 
+    "ReportType": "SellReport",
+    "Prompt": "You are a cautious equity research analyst recommending a SELL position. Generate a critical analysis report for Apple Inc. (AAPL) in the IT sector. Highlight: 1) Market saturation concerns in key products, 2) Increasing competition from Android and Chinese manufacturers, 3) Regulatory pressures and antitrust risks, 4) High valuation concerns, 5) Potential decline in hardware sales, 6) Economic headwinds affecting consumer spending. Use a conservative, risk-focused tone."
+  },
+  {
+    "CompanyCode": "MSFT",
+    "SectorCode": "IT",
+    "ReportType": "FirstCutReport", 
+    "Prompt": "You are an expert equity research analyst specializing in enterprise technology. Generate a comprehensive first-cut research report for Microsoft Corporation (MSFT) in the IT sector. Focus on: 1) Business segments analysis (Azure, Office 365, Windows), 2) Cloud computing market position, 3) AI integration and OpenAI partnership, 4) Subscription revenue model strength, 5) Enterprise customer relationships, 6) Growth outlook and investment thesis. Structure with executive summary and detailed sections."
+  },
+  {
+    "CompanyCode": "MSFT",
+    "SectorCode": "IT",
+    "ReportType": "BuyReport",
+    "Prompt": "You are a technology sector specialist with strong conviction in cloud computing. Create a BUY report for Microsoft Corporation (MSFT) in the IT sector. Emphasize: 1) Azure's dominant position in hybrid cloud, 2) AI leadership through OpenAI partnership, 3) Recurring revenue stability from Office 365, 4) Strong enterprise relationships and switching costs, 5) Margin expansion opportunities, 6) Conservative but growing dividend. Present a compelling growth story with price targets."
+  },
+  {
+    "CompanyCode": "GOOGL",
+    "SectorCode": "IT",
+    "ReportType": "FirstCutReport",
+    "Prompt": "You are a digital advertising and technology expert analyst. Generate a comprehensive first-cut research report for Alphabet Inc. (GOOGL) in the IT sector. Focus on: 1) Search dominance and advertising revenue, 2) YouTube growth and monetization, 3) Google Cloud competitive position, 4) AI developments (Gemini, Bard), 5) Other Bets segment potential, 6) Regulatory challenges and antitrust risks. Provide balanced analysis with clear investment recommendation."
+  },
+  {
+    "CompanyCode": "TSLA",
+    "SectorCode": "AUTO",
+    "ReportType": "FirstCutReport",
+    "Prompt": "You are an automotive and clean energy sector analyst. Generate a comprehensive first-cut research report for Tesla Inc. (TSLA) in the automotive sector. Focus on: 1) EV market leadership and production capacity, 2) Autonomous driving technology progress, 3) Energy storage and solar business, 4) Manufacturing efficiency and margins, 5) Competition from traditional automakers, 6) Valuation considerations and growth sustainability. Structure as a professional equity research report."
+  },
+  {
+    "CompanyCode": "TSLA",
+    "SectorCode": "AUTO", 
+    "ReportType": "BuyReport",
+    "Prompt": "You are an electric vehicle and renewable energy enthusiast analyst with a BUY recommendation. Create a compelling BUY report for Tesla Inc. (TSLA) in the automotive sector. Emphasize: 1) EV market leadership and first-mover advantage, 2) Full Self Driving potential and robotaxi opportunity, 3) Energy business growth prospects, 4) Manufacturing innovation and cost reduction, 5) Global expansion opportunities, 6) Visionary leadership under Elon Musk. Present an optimistic growth narrative."
+  },
+  {
+    "CompanyCode": "TSLA",
+    "SectorCode": "AUTO",
+    "ReportType": "SellReport", 
+    "Prompt": "You are a conservative automotive analyst with concerns about Tesla's valuation. Generate a SELL report for Tesla Inc. (TSLA) in the automotive sector. Highlight: 1) Extreme valuation relative to traditional automakers, 2) Increasing competition from established OEMs, 3) Production and delivery challenges, 4) Regulatory risks for autonomous driving, 5) Dependence on CEO and execution risks, 6) Economic sensitivity of luxury EV market. Use a cautious, value-focused perspective."
+  },
+  {
+    "CompanyCode": "NVDA",
+    "SectorCode": "IT",
+    "ReportType": "FirstCutReport",
+    "Prompt": "You are a semiconductor and AI technology specialist analyst. Generate a comprehensive first-cut research report for NVIDIA Corporation (NVDA) in the IT sector. Focus on: 1) AI chip market dominance and data center growth, 2) Gaming and graphics card business, 3) Automotive and autonomous vehicle partnerships, 4) Competition from AMD, Intel, and custom chips, 5) Supply chain and manufacturing considerations, 6) Valuation and growth sustainability in AI boom. Provide detailed technical and financial analysis."
+  },
+  {
+    "CompanyCode": "META",
+    "SectorCode": "IT", 
+    "ReportType": "FirstCutReport",
+    "Prompt": "You are a social media and metaverse technology analyst. Generate a comprehensive first-cut research report for Meta Platforms Inc. (META) in the IT sector. Focus on: 1) Social media platform monetization (Facebook, Instagram, WhatsApp), 2) Metaverse investments and Reality Labs losses, 3) AI initiatives and recommendation algorithms, 4) Regulatory challenges and privacy concerns, 5) Competition from TikTok and other platforms, 6) Cost management and efficiency initiatives. Balance growth potential with execution risks."
+  },
+  {
+    "CompanyCode": "AMZN",
+    "SectorCode": "IT",
+    "ReportType": "BuyReport",
+    "Prompt": "You are an e-commerce and cloud computing expert with a BUY recommendation. Create a compelling BUY report for Amazon.com Inc. (AMZN) in the IT sector. Emphasize: 1) AWS cloud leadership and high margins, 2) E-commerce dominance and logistics network, 3) Prime membership ecosystem strength, 4) Advertising business growth potential, 5) International expansion opportunities, 6) AI and automation investments. Present a diversified growth story across multiple high-potential segments."
+  }
+]

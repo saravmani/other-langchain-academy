@@ -1,6 +1,9 @@
 ```
 python -m venv lc-academy-env
-lc-academy-env/scripts/activate
+
+lc-academy-env/scripts/
+    activate
+    
 pip install -r requirements.txt
 
 
