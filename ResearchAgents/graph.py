@@ -2,109 +2,270 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode
 from langchain_core.tools import tool
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 from vector_store import get_research_vectorstore
+from typing import TypedDict, Annotated
 import re
 
-# Simple equity research with ChromaDB context - prompt comes from main_fixed.py
-def call_model(state):
-    """Generate equity research report using the provided prompt and ChromaDB context."""
+# Enhanced state to track the workflow progress
+class ResearchState(TypedDict):
+    messages: Annotated[list, "The conversation messages"]
+    company_code: str
+    sector_code: str
+    report_type: str
+    research_context: str
+    first_cut_report: str
+    feedback: str
+    final_report: str
+    analyst_iterations: int
+
+def initialize_research(state):
+    """Initialize the research process by getting context from ChromaDB"""
     messages = state["messages"]
+    company_code = state.get("company_code", "")
+    sector_code = state.get("sector_code", "")
+    report_type = state.get("report_type", "")
     
-    print(f"DEBUG: call_model - input messages count: {len(messages)}")
-    
-    # Extract company code from the user message/prompt
-    user_message = messages[0].content if messages else ""
-    company_code = extract_company_code_from_prompt(user_message)
+    print(f"DEBUG: initialize_research - Company: {company_code}, Sector: {sector_code}, Report: {report_type}")
     
     # Get relevant context from ChromaDB
     vectorstore = get_research_vectorstore()
     context = ""
     
-    if company_code:
+    if company_code and company_code != "UNKNOWN":
         print(f"DEBUG: Retrieving context for company: {company_code}")
         context = vectorstore.get_context_for_company(company_code)
         print(f"DEBUG: Retrieved context length: {len(context)} characters")
     
-    # Enhanced system message with context
-    system_content = f"""You are a professional equity research analyst. 
-    Generate a comprehensive, well-structured research report based on the specific instructions provided.
-    Use professional formatting with clear sections, bullet points, and actionable insights.
+    return {
+        "messages": messages,
+        "company_code": company_code,
+        "sector_code": sector_code,
+        "report_type": report_type,
+        "research_context": context,
+        "first_cut_report": "",
+        "feedback": "",
+        "final_report": "",
+        "analyst_iterations": 0
+    }
+
+def equity_research_analyst(state):
+    """Junior Equity Research Analyst - generates reports using RAG context"""
+    messages = state["messages"]
+    company_code = state.get("company_code", "")
+    context = state.get("research_context", "")
+    feedback = state.get("feedback", "")
+    iterations = state.get("analyst_iterations", 0)
     
-    {"IMPORTANT: Use the following research context to enhance your analysis with factual data and insights:" if context else ""}
+    print(f"DEBUG: Equity Research Analyst - Iteration {iterations + 1}")
     
-    {"=== RESEARCH CONTEXT ===" if context else ""}
-    {context if context else ""}
-    {"=== END CONTEXT ===" if context else ""}
+    # Extract user message content (handle both tuple and message object formats)
+    user_request = ""
+    if messages and len(messages) > 0:
+        if isinstance(messages[0], tuple):
+            user_request = messages[0][1]  # For ("user", content) format
+        else:
+            user_request = messages[0].content  # For message object format
     
-    Based on the research context above and your knowledge, provide a detailed and accurate analysis.
-    Ensure your recommendations are well-supported by the available data.
-    """
+    # Determine if this is first cut or final report
+    is_final_report = iterations > 0 and feedback
+    
+    if is_final_report:
+        system_content = f"""You are a Junior Equity Research Analyst. You are revising your research report based on senior analyst feedback.
+
+ORIGINAL USER REQUEST:
+{user_request}
+
+SENIOR ANALYST FEEDBACK:
+{feedback}
+
+RESEARCH CONTEXT:
+=== RESEARCH CONTEXT ===
+{context}
+=== END CONTEXT ===
+
+Please revise your report addressing all the feedback points. Generate a comprehensive, well-structured FINAL research report that incorporates the senior analyst's suggestions.
+
+Use professional formatting with clear sections, bullet points, and actionable insights.
+Make sure to address every concern raised in the feedback.
+"""
+    else:
+        system_content = f"""You are a Junior Equity Research Analyst. Generate a comprehensive first-cut equity research report using the provided research context.
+
+USER REQUEST:
+{user_request}
+
+RESEARCH CONTEXT:
+=== RESEARCH CONTEXT ===
+{context}
+=== END CONTEXT ===
+
+Generate a detailed first-cut research report with the following structure:
+1. Executive Summary
+2. Company Overview  
+3. Financial Analysis
+4. Investment Thesis
+5. Risks and Considerations
+6. Recommendation
+
+Use professional formatting with clear sections, bullet points, and actionable insights.
+Base your analysis on the research context provided above.
+"""
     
     system_message = SystemMessage(content=system_content)
-    
-    # Initialize the LLM with Groq and Llama3-8b-8192
     model = init_chat_model("groq:llama3-8b-8192", temperature=0.7)
     
-    # Combine system message with user messages
-    full_messages = [system_message] + messages
+    # Create proper message for the model
+    user_message = HumanMessage(content=user_request)
+    response = model.invoke([system_message, user_message])
+    report_content = response.content
     
-    response = model.invoke(full_messages)
-    print(f"DEBUG: call_model - response generated successfully")
-    
-    return {"messages": [response]}
-
-def extract_company_code_from_prompt(prompt: str) -> str:
-    """Extract company code from the prompt text"""
-    # Common patterns to look for company codes
-    patterns = [
-        r'\b(AAPL|MSFT|GOOGL|AMZN|TSLA|NVDA|META)\b',  # Specific codes
-        r'Apple Inc\.|Apple',  # Apple variations
-        r'Microsoft Corporation|Microsoft',  # Microsoft variations
-        r'Alphabet Inc\.|Google|Alphabet',  # Google/Alphabet variations
-    ]
-    
-    # Company code mapping
-    company_mapping = {
-        'Apple': 'AAPL',
-        'Microsoft': 'MSFT', 
-        'Google': 'GOOGL',
-        'Alphabet': 'GOOGL',
-        'Amazon': 'AMZN',
-        'Tesla': 'TSLA',
-        'NVIDIA': 'NVDA',
-        'Meta': 'META'
+    updated_state = {
+        "messages": state["messages"],
+        "company_code": company_code,
+        "sector_code": state.get("sector_code", ""),
+        "report_type": state.get("report_type", ""),
+        "research_context": context,
+        "analyst_iterations": iterations + 1
     }
     
-    prompt_upper = prompt.upper()
+    if is_final_report:
+        print(f"DEBUG: Generated FINAL report")
+        updated_state["final_report"] = report_content
+        updated_state["first_cut_report"] = state.get("first_cut_report", "")
+        updated_state["feedback"] = feedback
+    else:
+        print(f"DEBUG: Generated FIRST CUT report")
+        updated_state["first_cut_report"] = report_content
+        updated_state["feedback"] = ""
+        updated_state["final_report"] = ""
     
-    # First try direct ticker matches
-    for pattern in patterns:
-        matches = re.findall(pattern, prompt_upper)
-        if matches:
-            match = matches[0]
-            return company_mapping.get(match, match)
+    return updated_state
+
+def senior_equity_research_analyst(state):
+    """Senior Equity Research Analyst - reviews and provides feedback"""
+    first_cut_report = state.get("first_cut_report", "")
+    company_code = state.get("company_code", "")
+    context = state.get("research_context", "")
+    messages = state["messages"]
     
-    # If no direct match, try company name mapping
-    for company_name, ticker in company_mapping.items():
-        if company_name.upper() in prompt_upper:
-            return ticker
+    print(f"DEBUG: Senior Equity Research Analyst - Reviewing first cut report")
     
-    return None
+    # Extract user message content (handle both tuple and message object formats)
+    user_request = ""
+    if messages and len(messages) > 0:
+        if isinstance(messages[0], tuple):
+            user_request = messages[0][1]  # For ("user", content) format
+        else:
+            user_request = messages[0].content  # For message object format
+    
+    system_content = f"""You are a Senior Equity Research Analyst with 15+ years of experience. 
+Your role is to review the junior analyst's first-cut report and provide constructive feedback.
+
+ORIGINAL USER REQUEST:
+{user_request}
+
+COMPANY: {company_code}
+
+RESEARCH CONTEXT:
+=== RESEARCH CONTEXT ===
+{context}
+=== END CONTEXT ===
+
+JUNIOR ANALYST'S FIRST CUT REPORT:
+=== REPORT TO REVIEW ===
+{first_cut_report}
+=== END REPORT ===
+
+Please provide detailed, constructive feedback focusing on:
+1. Accuracy of financial analysis
+2. Completeness of risk assessment
+3. Quality of investment thesis
+4. Use of research context and data
+5. Report structure and presentation
+6. Missing critical information
+7. Specific improvements needed
+
+Be specific about what needs to be corrected, enhanced, or added. 
+Provide actionable suggestions for improvement.
+"""
+    
+    system_message = SystemMessage(content=system_content)
+    model = init_chat_model("groq:llama3-8b-8192", temperature=0.3)  # Lower temperature for more consistent feedback
+    
+    response = model.invoke([system_message])
+    feedback_content = response.content
+    
+    print(f"DEBUG: Generated feedback for first cut report")
+    
+    return {
+        "messages": state["messages"],
+        "company_code": company_code,
+        "sector_code": state.get("sector_code", ""),
+        "report_type": state.get("report_type", ""),
+        "research_context": context,
+        "first_cut_report": first_cut_report,
+        "feedback": feedback_content,
+        "final_report": "",
+        "analyst_iterations": state.get("analyst_iterations", 0)
+    }
+
+def should_continue_to_senior(state):
+    """Determine if we should go to senior analyst (after first cut)"""
+    iterations = state.get("analyst_iterations", 0)
+    return "senior_analyst" if iterations == 1 else "finalize"
+
+def should_continue_to_final(state):
+    """Determine if we should go to final report (after feedback)"""
+    iterations = state.get("analyst_iterations", 0)
+    return "junior_analyst" if iterations == 1 else "finalize"
+
+def finalize_research(state):
+    """Finalize the research process and return the appropriate report"""
+    final_report = state.get("final_report", "")
+    first_cut_report = state.get("first_cut_report", "")
+    
+    # Return the final report if available, otherwise the first cut
+    report_to_return = final_report if final_report else first_cut_report
+    
+    print(f"DEBUG: Finalizing research - returning {'final' if final_report else 'first cut'} report")
+    
+    return {
+        "messages": [AIMessage(content=report_to_return)]
+    }
 
 def create_research_graph():
-    """Create and return the simplified research graph."""
+    """Create and return the multi-agent research graph."""
     
-    # Create the state graph
-    workflow = StateGraph(MessagesState)
+    # Create the state graph with custom ResearchState
+    workflow = StateGraph(ResearchState)
     
-    # Add single node - no tools needed
-    workflow.add_node("agent", call_model)
+    # Add nodes for the workflow
+    workflow.add_node("initialize", initialize_research)
+    workflow.add_node("junior_analyst", equity_research_analyst)
+    workflow.add_node("senior_analyst", senior_equity_research_analyst)
+    workflow.add_node("finalize", finalize_research)
     
-    # Simple flow: START -> agent -> END
-    workflow.add_edge(START, "agent")
-    workflow.add_edge("agent", END)
+    # Define the workflow edges
+    workflow.add_edge(START, "initialize")
+    workflow.add_edge("initialize", "junior_analyst")
+    
+    # Conditional routing after junior analyst
+    workflow.add_conditional_edges(
+        "junior_analyst",
+        should_continue_to_senior,
+        {
+            "senior_analyst": "senior_analyst",
+            "finalize": "finalize"
+        }
+    )
+    
+    # After senior analyst feedback, go back to junior analyst for final report
+    workflow.add_edge("senior_analyst", "junior_analyst")
+    
+    # End the workflow after finalization
+    workflow.add_edge("finalize", END)
     
     # Add memory
     memory = MemorySaver()

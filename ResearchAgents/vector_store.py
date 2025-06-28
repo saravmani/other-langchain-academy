@@ -109,7 +109,8 @@ class ResearchVectorStore:
         else:
             logger.error(f"Docs directory not found: {docs_directory}")
     
-    def search_similar_documents(self, query: str, company_code: str = None, k: int = 5) -> List[Document]:
+    # private
+    def __search_similar_documents(self, query: str, company_code: str = None, k: int = 5) -> List[Document]:
         """Search for similar documents in the vector store"""
         try:
             # Build filter if company code is specified
@@ -138,7 +139,7 @@ class ResearchVectorStore:
             search_query = query if query else f"{company_code} financial performance business overview"
             
             # Search for relevant documents
-            docs = self.search_similar_documents(search_query, company_code, k)
+            docs = self.__search_similar_documents(search_query, company_code, k)
             
             if not docs:
                 return f"No research context found for {company_code}"

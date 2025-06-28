@@ -90,14 +90,16 @@ async def research_query(request: ResearchRequest):
             request.sector_code, 
             request.report_type
         )
-        
-        # Run the graph with the specific prompt
+          # Run the graph with the specific prompt and request parameters
         final_result = None
         
         # Use stream_mode="values" to get the final state values
         for state in research_graph.stream(
             {
-                "messages": [("user", specific_prompt)]
+                "messages": [("user", specific_prompt)],
+                "company_code": request.company_code,
+                "sector_code": request.sector_code,
+                "report_type": request.report_type
             }, 
             config,
             stream_mode="values"
