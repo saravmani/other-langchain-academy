@@ -1,6 +1,6 @@
-# Equity Research Agent API
+# Equity Research Agent API (Powered by Groq + Llama3)
 
-A LangGraph-based equity research report generator exposed via FastAPI.
+A LangGraph-based equity research report generator using Groq's Llama3-8b-8192 model, exposed via FastAPI.
 
 ## Features
 
@@ -28,9 +28,9 @@ The application consists of:
 pip install -r requirements.txt
 ```
 
-2. Set your OpenAI API key:
+2. Set your Groq API key:
 ```bash
-set OPENAI_API_KEY=your_api_key_here
+set GROQ_API_KEY=your_groq_api_key_here
 ```
 
 3. Run the server:

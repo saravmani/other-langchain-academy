@@ -5,8 +5,21 @@ import uvicorn
 import json
 import os
 from graph import create_research_graph
+from vector_store import initialize_vector_store
 
-app = FastAPI(title="Equity Research Agent API", version="1.0.0")
+app = FastAPI(title="Equity Research Agent API with ChromaDB", version="1.0.0")
+
+# Initialize vector store on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the vector store when the API starts"""
+    print("🚀 Initializing Equity Research API with ChromaDB...")
+    try:
+        vectorstore = initialize_vector_store()
+        stats = vectorstore.get_collection_stats()
+        print(f"✅ Vector store initialized: {stats}")
+    except Exception as e:
+        print(f"❌ Error initializing vector store: {e}")
 
 # Load prompts data
 def load_prompts_data():
@@ -155,6 +168,54 @@ async def research_query_debug(request: ResearchRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.get("/vectorstore/status")
+async def vectorstore_status():
+    """Get the status of the vector store"""
+    try:
+        from vector_store import get_research_vectorstore
+        vectorstore = get_research_vectorstore()
+        stats = vectorstore.get_collection_stats()
+        return {
+            "status": "active",
+            "stats": stats
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting vector store status: {str(e)}")
+
+@app.post("/vectorstore/search")
+async def search_vectorstore(request: dict):
+    """Search the vector store for relevant documents"""
+    try:
+        from vector_store import get_research_vectorstore
+        
+        query = request.get("query", "")
+        company_code = request.get("company_code", None)
+        k = request.get("k", 5)
+        
+        if not query:
+            raise HTTPException(status_code=400, detail="Query is required")
+        
+        vectorstore = get_research_vectorstore()
+        docs = vectorstore.search_similar_documents(query, company_code, k)
+        
+        results = []
+        for doc in docs:
+            results.append({
+                "content": doc.page_content,
+                "metadata": doc.metadata,
+                "score": getattr(doc, 'score', None)
+            })
+        
+        return {
+            "query": query,
+            "company_code": company_code,
+            "results_count": len(results),
+            "results": results
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error searching vector store: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

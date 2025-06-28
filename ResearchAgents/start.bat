@@ -15,12 +15,12 @@ REM Install requirements
 echo Installing requirements...
 pip install -r requirements.txt
 
-REM Check for OpenAI API key
-if "%OPENAI_API_KEY%"=="" (
+REM Check for Groq API key
+if "%GROQ_API_KEY%"=="" (
     echo.
-    echo WARNING: OPENAI_API_KEY environment variable not set!
-    echo Please set your OpenAI API key before running:
-    echo set OPENAI_API_KEY=your_api_key_here
+    echo WARNING: GROQ_API_KEY environment variable not set!
+    echo Please set your Groq API key before running:
+    echo set GROQ_API_KEY=your_groq_api_key_here
     echo.
 )
 
